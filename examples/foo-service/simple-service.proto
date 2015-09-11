@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package example.foo_service;
+
+import "google/api/annotations.proto";
+
+option go_package = "foo_service";
+
+message HelloRequest {
+  string who = 1;
+}
+
+message HelloResponse {
+  string response = 1;
+}
+
+message CountToRequest {
+  int32 target = 1;
+}
+
+message CountToResponse {
+  string response = 1;
+}
+
+
+service FooService {
+  rpc SayHello(HelloRequest) returns (HelloResponse) {
+    option(google.api.http) = {
+      post: "/hello";
+    };
+  }
+
+  rpc CountTo(CountToRequest) returns (CountToResponse) {
+    option(google.api.http) = {
+      post: "/count/to/{target}";
+    };
+  }
+}
