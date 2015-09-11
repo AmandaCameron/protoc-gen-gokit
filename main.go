@@ -1,3 +1,5 @@
+// (setenv "GOPATH" "/Users/amanda/Bazel/go/.external:/Users/amanda/Bazel/go")
+
 package main
 
 import (
@@ -45,6 +47,7 @@ type service struct {
 type method struct {
 	GoName      string
 	GoInputType string
+	InputType   string
 	Input       message
 	PathArgs    []field
 	Path        string
@@ -87,6 +90,7 @@ func main() {
 
 	param := msg.GetParameter()
 	imports := map[string]string{}
+	sources := map[string]string{}
 
 	for _, p := range strings.Split(param, ",") {
 		if len(p) == 0 {
@@ -113,6 +117,7 @@ func main() {
 			}
 
 			messages["."+file.GetPackage()+"."+msg.GetName()] = m
+			sources["."+file.GetPackage()+"."+msg.GetName()] = file.GetName()
 		}
 	}
 
@@ -133,6 +138,7 @@ func main() {
 					GoName:      goise(meth.GetName()),
 					GoInputType: goise(meth.GetInputType()),
 					Input:       messages[meth.GetInputType()],
+					InputType:   meth.GetInputType(),
 				}
 
 				if tmp, err := proto.GetExtension(meth.GetOptions(), google_api.E_Http); err == nil {
@@ -169,20 +175,37 @@ func main() {
 				s.Methods = append(s.Methods, m)
 			}
 
-			if len(s.Methods) != 0 {
+			if len(s.Methods) > 0 {
 				services[svc.GetName()] = s
 			}
 		}
 
-		if len(services) != 0 {
+		if len(services) > 0 {
 			fname := strings.Replace(file.GetName(), ".proto", ".pb.kit.go", 1)
 			buff := bytes.NewBuffer(nil)
+			imps := map[string]string{}
+			impUsages := map[string]int{}
+
+			for _, svc := range services {
+				for _, meth := range svc.Methods {
+					src := sources[meth.InputType]
+					if src == file.GetName() {
+						continue
+					}
+
+					impUsages[src] = impUsages[src] + 1
+				}
+			}
+
+			for k := range impUsages {
+				imps[k] = imports[k]
+			}
 
 			fileTemplate.Execute(buff, struct {
 				Package  string
 				Imports  map[string]string
 				Services map[string]service
-			}{goPackage, imports, services})
+			}{goPackage, imps, services})
 			data := buff.String()
 
 			ret.File = append(ret.File, &plugin.CodeGeneratorResponse_File{
