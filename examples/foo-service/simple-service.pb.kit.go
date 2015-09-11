@@ -8,7 +8,7 @@ import (
 
   "golang.org/x/net/context"
 
-  "github.com/AmandaCameron/protoc-gen-gokit/src/runtime"
+  "github.com/AmandaCameron/protoc-gen-gokit/runtime"
 
 
 )

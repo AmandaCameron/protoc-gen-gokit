@@ -15,7 +15,7 @@ import (
 
 	"github.com/golang/glog"
 
-	"examples/foo-service"
+	foo_service "github.com/AmandaCameron/protoc-gen-gokit/examples/foo-service"
 )
 
 func main() {
