@@ -14,13 +14,38 @@ import (
 
   "golang.org/x/net/context"
 
+  kithttp "github.com/go-kit/kit/transport/http"
+  "github.com/go-kit/kit/endpoint"
+
   "github.com/AmandaCameron/protoc-gen-gokit/runtime"
 
 {{ range $k, $pkg := .Imports }}
   . "{{ $pkg }}"{{ end }}
 )
 
-{{ range $svc := .Services }}{{ range $method := $svc.Methods }}
+{{ range $svc := .Services }}
+
+// MakeMux_{{$svc.GoName}} creates a server mux for the {{ $svc.GoName }} service, 
+// using the passed kithttp.Server as a template for the parameters of the endpoints.
+func MakeMux_{{ $svc.GoName }}(cli {{ $svc.GoName }}Client, template kithttp.Server) http.Handler {
+  ret := runtime.NewMux()
+{{ range $endp := $svc.Methods }}
+  ret.AddEndpoint("{{ $endp.Method }}", "{{ $endp.Path }}", kithttp.Server{
+    Context: template.Context,
+    EncodeResponseFunc: template.EncodeResponseFunc,
+    Logger: template.Logger,
+    Before: template.Before,
+    After: template.After,
+    ErrorEncoder: template.ErrorEncoder,
+
+    Endpoint: MakeEndpoint_{{ $svc.GoName }}_{{ $endp.GoName }}(cli),
+    DecodeRequestFunc: Decode_{{ $svc.GoName }}_{{ $endp.GoName }},
+  }){{end}}
+
+  return ret
+}
+
+{{ range $method := $svc.Methods }}
 // Decode_{{ $svc.GoName }}_{{ $method.GoName }} decodes an http.Request into a {{ $method.GoInputType }}.
 func Decode_{{ $svc.GoName }}_{{ $method.GoName }}(req *http.Request) (interface{}, error) {
   var ret {{ $method.GoInputType }}
@@ -50,7 +75,7 @@ func Decode_{{ $svc.GoName }}_{{ $method.GoName }}(req *http.Request) (interface
 
 // MakeEndpoint_{{ $svc.GoName }}_{{ $method.GoName }} creates an endpoint function for Go-kit 
 // that runs the specified service / endpoint on the specified grpc endpoint.
-func MakeEndpoint_{{ $svc.GoName }}_{{ $method.GoName }}(cli {{ $svc.GoName }}Client) func (context.Context, interface{}) (interface{}, error) {
+func MakeEndpoint_{{ $svc.GoName }}_{{ $method.GoName }}(cli {{ $svc.GoName }}Client) endpoint.Endpoint {
   return func (ctx context.Context, inp interface{}) (interface{}, error) {
     return cli.{{ $method.GoName }}(ctx, inp.(*{{ $method.GoInputType }}))
   }

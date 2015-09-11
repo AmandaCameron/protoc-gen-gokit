@@ -6,44 +6,13 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gengo/grpc-gateway/third_party/googleapis/google/api"
 	"github.com/golang/protobuf/proto"
 
 	google_protobuf "github.com/golang/protobuf/protoc-gen-go/descriptor"
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
+
+	"github.com/AmandaCameron/protoc-gen-gokit/protobuf/google/api"
 )
-
-// type Method struct {
-// 	Get, Put, Post, Delete *Operation
-// }
-
-// func (m *Method) IsUnique() bool {
-// 	n := 0
-// 	if m.Get != nil {
-// 		n++
-// 	}
-
-// 	if m.Post != nil {
-// 		n++
-// 	}
-
-// 	if m.Put != nil {
-// 		n++
-// 	}
-
-// 	if m.Delete != nil {
-// 		n++
-// 	}
-
-// 	return n == 1
-// }
-
-// type Operation struct {
-// 	Input     string
-// 	Output    string
-// 	Name      string
-// 	PathParts []string
-// }
 
 func parsePath(msgs map[string]message, method *google_protobuf.MethodDescriptorProto, path string) (ret []field) {
 	parts := strings.Split(path, "/")
@@ -78,6 +47,8 @@ type method struct {
 	GoInputType string
 	Input       message
 	PathArgs    []field
+	Path        string
+	Method      string
 }
 
 type message struct {
@@ -169,12 +140,29 @@ func main() {
 
 					if http.Get != "" {
 						m.PathArgs = parsePath(messages, meth, http.Get)
-					} else if http.Put != "" {
+						m.Path = http.Get
+						m.Method = "GET"
+					}
+
+					if http.Put != "" {
 						m.PathArgs = parsePath(messages, meth, http.Put)
-					} else if http.Post != "" {
+						m.Path = http.Put
+
+						m.Method = "PUT"
+					}
+
+					if http.Post != "" {
 						m.PathArgs = parsePath(messages, meth, http.Post)
-					} else if http.Delete != "" {
+						m.Path = http.Post
+
+						m.Method = "POST"
+					}
+
+					if http.Delete != "" {
 						m.PathArgs = parsePath(messages, meth, http.Delete)
+						m.Path = http.Delete
+
+						m.Method = "DELETE"
 					}
 				}
 

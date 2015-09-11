@@ -26,13 +26,13 @@ message CountToResponse {
 service FooService {
   rpc SayHello(HelloRequest) returns (HelloResponse) {
     option(google.api.http) = {
-      post: "/hello";
+      get: "/hello";
     };
   }
 
   rpc CountTo(CountToRequest) returns (CountToResponse) {
     option(google.api.http) = {
-      post: "/count/to/{target}";
+      get: "/count/to/{target}";
     };
   }
 }

@@ -15,7 +15,7 @@ import (
 
 	"github.com/golang/glog"
 
-	foo_service "github.com/AmandaCameron/protoc-gen-gokit/examples/foo-service"
+	foo "github.com/AmandaCameron/protoc-gen-gokit/examples/foo-service"
 )
 
 func main() {
@@ -26,33 +26,16 @@ func main() {
 	if err != nil {
 		glog.Fatal(err)
 	}
-	cli := foo_service.NewFooServiceClient(conn)
 
-	http.Handle("/hello", kithttp.Server{
-		Context:  ctx,
-		Endpoint: foo_service.MakeEndpoint_FooService_SayHello(cli),
+	cli := foo.NewFooServiceClient(conn)
 
-		DecodeRequestFunc: foo_service.Decode_FooService_SayHello,
+	http.ListenAndServe("localhost:8000", foo.MakeMux_FooService(cli, kithttp.Server{
+		Context: ctx,
+		Logger:  log.NewLogfmtLogger(os.Stderr),
 		EncodeResponseFunc: func(wr http.ResponseWriter, data interface{}) error {
 			return json.NewEncoder(wr).Encode(data)
 		},
-
-		Logger: log.NewLogfmtLogger(os.Stderr),
-	})
-
-	http.Handle("/count/to/", kithttp.Server{
-		Context:  ctx,
-		Endpoint: foo_service.MakeEndpoint_FooService_CountTo(cli),
-
-		DecodeRequestFunc: foo_service.Decode_FooService_CountTo,
-		EncodeResponseFunc: func(wr http.ResponseWriter, data interface{}) error {
-			return json.NewEncoder(wr).Encode(data)
-		},
-
-		Logger: log.NewLogfmtLogger(os.Stderr),
-	})
-
-	http.ListenAndServe("localhost:8000", nil)
+	}))
 }
 
 func grpcServer() {
@@ -63,21 +46,21 @@ func grpcServer() {
 
 	srv := grpc.NewServer()
 
-	foo_service.RegisterFooServiceServer(srv, &impl{})
+	foo.RegisterFooServiceServer(srv, &impl{})
 
 	srv.Serve(lis)
 }
 
 type impl struct{}
 
-func (i *impl) SayHello(ctx context.Context, req *foo_service.HelloRequest) (*foo_service.HelloResponse, error) {
-	return &foo_service.HelloResponse{
+func (i *impl) SayHello(ctx context.Context, req *foo.HelloRequest) (*foo.HelloResponse, error) {
+	return &foo.HelloResponse{
 		Response: "Hello " + req.Who + "!",
 	}, nil
 }
 
-func (i *impl) CountTo(ctx context.Context, req *foo_service.CountToRequest) (*foo_service.CountToResponse, error) {
-	resp := &foo_service.CountToResponse{}
+func (i *impl) CountTo(ctx context.Context, req *foo.CountToRequest) (*foo.CountToResponse, error) {
+	resp := &foo.CountToResponse{}
 
 	for i := int32(0); i < req.Target; i++ {
 		resp.Response += fmt.Sprintf(" %d", i+1)
