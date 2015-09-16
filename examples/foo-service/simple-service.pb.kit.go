@@ -20,33 +20,24 @@ import (
 
 // MakeMux_FooService creates a server mux for the FooService service, 
 // using the passed kithttp.Server as a template for the parameters of the endpoints.
-func MakeMux_FooService(cli FooServiceClient, template kithttp.Server) http.Handler {
+func MakeMux_FooService(cli FooServiceClient, mw endpoint.Middleware, responseEncoder kithttp.EncodeResponseFunc, error options ...kithttp.ServerOption) (http.Handler, error) {
   ret := runtime.NewMux()
 
-  ret.AddEndpoint("GET", "/hello", kithttp.Server{
-    Context: template.Context,
-    EncodeResponseFunc: template.EncodeResponseFunc,
-    Logger: template.Logger,
-    Before: template.Before,
-    After: template.After,
-    ErrorEncoder: template.ErrorEncoder,
 
-    Endpoint: MakeEndpoint_FooService_SayHello(cli),
-    DecodeRequestFunc: Decode_FooService_SayHello,
-  })
-  ret.AddEndpoint("GET", "/count/to/{target}", kithttp.Server{
-    Context: template.Context,
-    EncodeResponseFunc: template.EncodeResponseFunc,
-    Logger: template.Logger,
-    Before: template.Before,
-    After: template.After,
-    ErrorEncoder: template.ErrorEncoder,
+  ret.AddEndpoint("GET", "/hello", kithttp.NewServer(
+   context.Background(), 
+   mw(MakeEndpoint_FooService_SayHello(cli)),
+   Decode_FooService_SayHello,
+   responseEncoder, options...)
+  )
+  ret.AddEndpoint("GET", "/count/to/{target}", kithttp.NewServer(
+   context.Background(), 
+   mw(MakeEndpoint_FooService_CountTo(cli)),
+   Decode_FooService_CountTo,
+   responseEncoder, options...)
+  )
 
-    Endpoint: MakeEndpoint_FooService_CountTo(cli),
-    DecodeRequestFunc: Decode_FooService_CountTo,
-  })
-
-  return ret
+  return ret, nil
 }
 
 
@@ -77,9 +68,11 @@ func Decode_FooService_SayHello(req *http.Request) (interface{}, error) {
 // MakeEndpoint_FooService_SayHello creates an endpoint function for Go-kit 
 // that runs the specified service / endpoint on the specified grpc endpoint.
 func MakeEndpoint_FooService_SayHello(cli FooServiceClient) endpoint.Endpoint {
-  return func (ctx context.Context, inp interface{}) (interface{}, error) {
+  endp := func (ctx context.Context, inp interface{}) (interface{}, error) {
     return cli.SayHello(ctx, inp.(*HelloRequest))
   }
+
+  return endp
 }
 
 // Decode_FooService_CountTo decodes an http.Request into a CountToRequest.
@@ -112,7 +105,9 @@ func Decode_FooService_CountTo(req *http.Request) (interface{}, error) {
 // MakeEndpoint_FooService_CountTo creates an endpoint function for Go-kit 
 // that runs the specified service / endpoint on the specified grpc endpoint.
 func MakeEndpoint_FooService_CountTo(cli FooServiceClient) endpoint.Endpoint {
-  return func (ctx context.Context, inp interface{}) (interface{}, error) {
+  endp := func (ctx context.Context, inp interface{}) (interface{}, error) {
     return cli.CountTo(ctx, inp.(*CountToRequest))
   }
+
+  return endp
 }

@@ -5,18 +5,23 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"os"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	"github.com/go-kit/kit/log"
-	kithttp "github.com/go-kit/kit/transport/http"
-
+	"github.com/go-kit/kit/endpoint"
 	"github.com/golang/glog"
 
 	foo "github.com/AmandaCameron/protoc-gen-gokit/examples/foo-service"
 )
+
+func jsonEncoder(wr *http.ResponseWriter, data interface{}) error {
+	return json.NewEncoder(wr).Encode(data)
+}
+
+func noMiddleware(endp endpoint.Endpoint) endpoint.Endpoint {
+	return endp
+}
 
 func main() {
 	go grpcServer()
@@ -29,13 +34,7 @@ func main() {
 
 	cli := foo.NewFooServiceClient(conn)
 
-	http.ListenAndServe("localhost:8000", foo.MakeMux_FooService(cli, kithttp.Server{
-		Context: ctx,
-		Logger:  log.NewLogfmtLogger(os.Stderr),
-		EncodeResponseFunc: func(wr http.ResponseWriter, data interface{}) error {
-			return json.NewEncoder(wr).Encode(data)
-		},
-	}))
+	http.ListenAndServe("localhost:8000", foo.MakeMux_FooService(cli, jsonEncoder, noMiddleware))
 }
 
 func grpcServer() {

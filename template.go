@@ -27,22 +27,18 @@ import (
 
 // MakeMux_{{$svc.GoName}} creates a server mux for the {{ $svc.GoName }} service, 
 // using the passed kithttp.Server as a template for the parameters of the endpoints.
-func MakeMux_{{ $svc.GoName }}(cli {{ $svc.GoName }}Client, template kithttp.Server) http.Handler {
+func MakeMux_{{ $svc.GoName }}(cli {{ $svc.GoName }}Client, mw endpoint.Middleware, responseEncoder kithttp.EncodeResponseFunc, error options ...kithttp.ServerOption) (http.Handler, error) {
   ret := runtime.NewMux()
+
 {{ range $endp := $svc.Methods }}
-  ret.AddEndpoint("{{ $endp.Method }}", "{{ $endp.Path }}", kithttp.Server{
-    Context: template.Context,
-    EncodeResponseFunc: template.EncodeResponseFunc,
-    Logger: template.Logger,
-    Before: template.Before,
-    After: template.After,
-    ErrorEncoder: template.ErrorEncoder,
+  ret.AddEndpoint("{{ $endp.Method }}", "{{ $endp.Path }}", kithttp.NewServer(
+   context.Background(), 
+   mw(MakeEndpoint_{{ $svc.GoName }}_{{ $endp.GoName }}(cli)),
+   Decode_{{ $svc.GoName }}_{{ $endp.GoName }},
+   responseEncoder, options...)
+  ){{end}}
 
-    Endpoint: MakeEndpoint_{{ $svc.GoName }}_{{ $endp.GoName }}(cli),
-    DecodeRequestFunc: Decode_{{ $svc.GoName }}_{{ $endp.GoName }},
-  }){{end}}
-
-  return ret
+  return ret, nil
 }
 
 {{ range $method := $svc.Methods }}
@@ -76,8 +72,10 @@ func Decode_{{ $svc.GoName }}_{{ $method.GoName }}(req *http.Request) (interface
 // MakeEndpoint_{{ $svc.GoName }}_{{ $method.GoName }} creates an endpoint function for Go-kit 
 // that runs the specified service / endpoint on the specified grpc endpoint.
 func MakeEndpoint_{{ $svc.GoName }}_{{ $method.GoName }}(cli {{ $svc.GoName }}Client) endpoint.Endpoint {
-  return func (ctx context.Context, inp interface{}) (interface{}, error) {
+  endp := func (ctx context.Context, inp interface{}) (interface{}, error) {
     return cli.{{ $method.GoName }}(ctx, inp.(*{{ $method.GoInputType }}))
   }
+
+  return endp
 }
 {{ end }}{{ end }}`))
