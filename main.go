@@ -8,12 +8,11 @@ import (
 	"os"
 	"strings"
 
+	"github.com/gengo/grpc-gateway/third_party/googleapis/google/api"
 	"github.com/golang/protobuf/proto"
 
 	google_protobuf "github.com/golang/protobuf/protoc-gen-go/descriptor"
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
-
-	"github.com/AmandaCameron/protoc-gen-gokit/protobuf/google/api"
 )
 
 func parsePath(msgs map[string]message, method *google_protobuf.MethodDescriptorProto, path string) (ret []field) {
@@ -139,6 +138,10 @@ func main() {
 					GoInputType: goise(meth.GetInputType()),
 					Input:       messages[meth.GetInputType()],
 					InputType:   meth.GetInputType(),
+				}
+
+				if meth.GetOptions() == nil {
+					continue
 				}
 
 				if tmp, err := proto.GetExtension(meth.GetOptions(), google_api.E_Http); err == nil {
