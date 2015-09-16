@@ -15,7 +15,7 @@ import (
 	foo "github.com/AmandaCameron/protoc-gen-gokit/examples/foo-service"
 )
 
-func jsonEncoder(wr *http.ResponseWriter, data interface{}) error {
+func jsonEncoder(wr http.ResponseWriter, data interface{}) error {
 	return json.NewEncoder(wr).Encode(data)
 }
 
@@ -25,8 +25,6 @@ func noMiddleware(endp endpoint.Endpoint) endpoint.Endpoint {
 
 func main() {
 	go grpcServer()
-	ctx := context.Background()
-
 	conn, err := grpc.Dial("localhost:8675", grpc.WithInsecure())
 	if err != nil {
 		glog.Fatal(err)
@@ -34,7 +32,12 @@ func main() {
 
 	cli := foo.NewFooServiceClient(conn)
 
-	http.ListenAndServe("localhost:8000", foo.MakeMux_FooService(cli, jsonEncoder, noMiddleware))
+	mux, err := foo.MakeMux_FooService(cli, noMiddleware, jsonEncoder)
+	if err != nil {
+		glog.Fatal(err)
+	}
+
+	http.ListenAndServe("localhost:8000", mux)
 }
 
 func grpcServer() {

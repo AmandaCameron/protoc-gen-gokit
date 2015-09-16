@@ -13,7 +13,7 @@ type Mux struct {
 }
 
 type endpoint struct {
-	kithttp.Server
+	*kithttp.Server
 
 	method       string
 	pathSegments []string
@@ -25,7 +25,7 @@ func NewMux() *Mux {
 }
 
 // AddEndpoint adds the specified endpoint to the Mux.
-func (mux *Mux) AddEndpoint(method, pathSegments string, ep kithttp.Server) {
+func (mux *Mux) AddEndpoint(method, pathSegments string, ep *kithttp.Server) {
 	mux.endpoints = append(mux.endpoints, endpoint{
 		pathSegments: strings.Split(pathSegments, "/"),
 		method:       method,

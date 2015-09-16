@@ -27,7 +27,7 @@ import (
 
 // MakeMux_{{$svc.GoName}} creates a server mux for the {{ $svc.GoName }} service, 
 // using the passed kithttp.Server as a template for the parameters of the endpoints.
-func MakeMux_{{ $svc.GoName }}(cli {{ $svc.GoName }}Client, mw endpoint.Middleware, responseEncoder kithttp.EncodeResponseFunc, error options ...kithttp.ServerOption) (http.Handler, error) {
+func MakeMux_{{ $svc.GoName }}(cli {{ $svc.GoName }}Client, mw endpoint.Middleware, responseEncoder kithttp.EncodeResponseFunc, options ...kithttp.ServerOption) (http.Handler, error) {
   ret := runtime.NewMux()
 
 {{ range $endp := $svc.Methods }}
@@ -35,8 +35,7 @@ func MakeMux_{{ $svc.GoName }}(cli {{ $svc.GoName }}Client, mw endpoint.Middlewa
    context.Background(), 
    mw(MakeEndpoint_{{ $svc.GoName }}_{{ $endp.GoName }}(cli)),
    Decode_{{ $svc.GoName }}_{{ $endp.GoName }},
-   responseEncoder, options...)
-  ){{end}}
+   responseEncoder, options...)){{end}}
 
   return ret, nil
 }

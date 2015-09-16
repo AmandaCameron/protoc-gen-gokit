@@ -20,7 +20,7 @@ import (
 
 // MakeMux_FooService creates a server mux for the FooService service, 
 // using the passed kithttp.Server as a template for the parameters of the endpoints.
-func MakeMux_FooService(cli FooServiceClient, mw endpoint.Middleware, responseEncoder kithttp.EncodeResponseFunc, error options ...kithttp.ServerOption) (http.Handler, error) {
+func MakeMux_FooService(cli FooServiceClient, mw endpoint.Middleware, responseEncoder kithttp.EncodeResponseFunc, options ...kithttp.ServerOption) (http.Handler, error) {
   ret := runtime.NewMux()
 
 
@@ -28,14 +28,12 @@ func MakeMux_FooService(cli FooServiceClient, mw endpoint.Middleware, responseEn
    context.Background(), 
    mw(MakeEndpoint_FooService_SayHello(cli)),
    Decode_FooService_SayHello,
-   responseEncoder, options...)
-  )
+   responseEncoder, options...))
   ret.AddEndpoint("GET", "/count/to/{target}", kithttp.NewServer(
    context.Background(), 
    mw(MakeEndpoint_FooService_CountTo(cli)),
    Decode_FooService_CountTo,
-   responseEncoder, options...)
-  )
+   responseEncoder, options...))
 
   return ret, nil
 }
