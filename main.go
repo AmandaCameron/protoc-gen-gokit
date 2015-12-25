@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/AmandaCameron/protoc-gen-go/protobuf/google/api"
+	"github.com/AmandaCameron/protoc-gen-gokit/protobuf/google/api"
 	"github.com/golang/protobuf/proto"
 
 	google_protobuf "github.com/golang/protobuf/protoc-gen-go/descriptor"
