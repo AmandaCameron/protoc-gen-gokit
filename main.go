@@ -1,5 +1,3 @@
-// (setenv "GOPATH" "/Users/amanda/Bazel/go/.external:/Users/amanda/Bazel/go")
-
 package main
 
 import (
@@ -8,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gengo/grpc-gateway/third_party/googleapis/google/api"
+	"github.com/AmandaCameron/protoc-gen-go/protobuf/google/api"
 	"github.com/golang/protobuf/proto"
 
 	google_protobuf "github.com/golang/protobuf/protoc-gen-go/descriptor"
