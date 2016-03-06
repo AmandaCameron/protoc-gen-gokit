@@ -53,7 +53,11 @@ func (mux *Mux) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 
 	if invalidMethod {
 		http.Error(wr, "Method not allowed", 405)
+
+		return
 	}
+
+	http.NotFound(wr, req)
 }
 
 func matchPath(endp, pathParts []string) bool {
