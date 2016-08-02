@@ -61,6 +61,12 @@ func (i *impl) SayHello(ctx context.Context, req *foo.HelloRequest) (*foo.HelloR
 	}, nil
 }
 
+func (i *impl) PostHello(ctx context.Context, req *foo.HelloRequest) (*foo.HelloResponse, error) {
+	return &foo.HelloResponse{
+		Response: "Hello " + req.Who + "!",
+	}, nil
+}
+
 func (i *impl) CountTo(ctx context.Context, req *foo.CountToRequest) (*foo.CountToResponse, error) {
 	resp := &foo.CountToResponse{}
 
@@ -71,4 +77,8 @@ func (i *impl) CountTo(ctx context.Context, req *foo.CountToRequest) (*foo.Count
 	resp.Response = resp.Response[1:]
 
 	return resp, nil
+}
+
+func (i *impl) PostMessage(ctx context.Context, req *foo.MessageRequest) (*foo.Message, error) {
+	return req.MessageBody, nil
 }

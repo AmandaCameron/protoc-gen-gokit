@@ -7,32 +7,54 @@ import "google/api/annotations.proto";
 option go_package = "foo_service";
 
 message HelloRequest {
-  string who = 1;
+	string who = 1;
 }
 
 message HelloResponse {
-  string response = 1;
+	string response = 1;
 }
 
 message CountToRequest {
-  int32 target = 1;
+	int32 target = 1;
 }
 
 message CountToResponse {
-  string response = 1;
+	string response = 1;
 }
 
+message MessageRequest {
+	Message messageBody = 1;
+}
+
+message Message {
+	string hello = 1;
+	string world = 2;
+}
 
 service FooService {
-  rpc SayHello(HelloRequest) returns (HelloResponse) {
-    option(google.api.http) = {
-      get: "/hello";
-    };
-  }
+	rpc SayHello(HelloRequest) returns (HelloResponse) {
+		option(google.api.http) = {
+			get: "/hello";
+		};
+	}
 
-  rpc CountTo(CountToRequest) returns (CountToResponse) {
-    option(google.api.http) = {
-      get: "/count/to/{target}";
-    };
-  }
+	rpc PostHello(HelloRequest) returns (HelloResponse) {
+		option(google.api.http) = {
+			put: "/hello";
+			body: "who";
+		};
+	}
+
+	rpc PostMessage(MessageRequest) returns (Message) {
+		option(google.api.http) = {
+			put: "/message";
+			body: "messageBody";
+		};
+	}
+
+	rpc CountTo(CountToRequest) returns (CountToResponse) {
+		option(google.api.http) = {
+			get: "/count/to/{target}";
+		};
+	}
 }

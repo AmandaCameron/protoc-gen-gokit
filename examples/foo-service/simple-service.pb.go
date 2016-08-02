@@ -13,12 +13,15 @@ It has these top-level messages:
 	HelloResponse
 	CountToRequest
 	CountToResponse
+	MessageRequest
+	Message
 */
 package foo_service
 
 import proto "github.com/golang/protobuf/proto"
-
-// discarding unused import google_api1 "google/api"
+import fmt "fmt"
+import math "math"
+import _ "github.com/AmandaCameron/protoc-gen-gokit/protobuf/google/api"
 
 import (
 	context "golang.org/x/net/context"
@@ -26,48 +29,101 @@ import (
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ context.Context
-var _ grpc.ClientConn
-
-// Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
+var _ = fmt.Errorf
+var _ = math.Inf
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type HelloRequest struct {
 	Who string `protobuf:"bytes,1,opt,name=who" json:"who,omitempty"`
 }
 
-func (m *HelloRequest) Reset()         { *m = HelloRequest{} }
-func (m *HelloRequest) String() string { return proto.CompactTextString(m) }
-func (*HelloRequest) ProtoMessage()    {}
+func (m *HelloRequest) Reset()                    { *m = HelloRequest{} }
+func (m *HelloRequest) String() string            { return proto.CompactTextString(m) }
+func (*HelloRequest) ProtoMessage()               {}
+func (*HelloRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
 type HelloResponse struct {
 	Response string `protobuf:"bytes,1,opt,name=response" json:"response,omitempty"`
 }
 
-func (m *HelloResponse) Reset()         { *m = HelloResponse{} }
-func (m *HelloResponse) String() string { return proto.CompactTextString(m) }
-func (*HelloResponse) ProtoMessage()    {}
+func (m *HelloResponse) Reset()                    { *m = HelloResponse{} }
+func (m *HelloResponse) String() string            { return proto.CompactTextString(m) }
+func (*HelloResponse) ProtoMessage()               {}
+func (*HelloResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
 
 type CountToRequest struct {
 	Target int32 `protobuf:"varint,1,opt,name=target" json:"target,omitempty"`
 }
 
-func (m *CountToRequest) Reset()         { *m = CountToRequest{} }
-func (m *CountToRequest) String() string { return proto.CompactTextString(m) }
-func (*CountToRequest) ProtoMessage()    {}
+func (m *CountToRequest) Reset()                    { *m = CountToRequest{} }
+func (m *CountToRequest) String() string            { return proto.CompactTextString(m) }
+func (*CountToRequest) ProtoMessage()               {}
+func (*CountToRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
 
 type CountToResponse struct {
 	Response string `protobuf:"bytes,1,opt,name=response" json:"response,omitempty"`
 }
 
-func (m *CountToResponse) Reset()         { *m = CountToResponse{} }
-func (m *CountToResponse) String() string { return proto.CompactTextString(m) }
-func (*CountToResponse) ProtoMessage()    {}
+func (m *CountToResponse) Reset()                    { *m = CountToResponse{} }
+func (m *CountToResponse) String() string            { return proto.CompactTextString(m) }
+func (*CountToResponse) ProtoMessage()               {}
+func (*CountToResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+
+type MessageRequest struct {
+	MessageBody *Message `protobuf:"bytes,1,opt,name=messageBody" json:"messageBody,omitempty"`
+}
+
+func (m *MessageRequest) Reset()                    { *m = MessageRequest{} }
+func (m *MessageRequest) String() string            { return proto.CompactTextString(m) }
+func (*MessageRequest) ProtoMessage()               {}
+func (*MessageRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
+
+func (m *MessageRequest) GetMessageBody() *Message {
+	if m != nil {
+		return m.MessageBody
+	}
+	return nil
+}
+
+type Message struct {
+	Hello string `protobuf:"bytes,1,opt,name=hello" json:"hello,omitempty"`
+	World string `protobuf:"bytes,2,opt,name=world" json:"world,omitempty"`
+}
+
+func (m *Message) Reset()                    { *m = Message{} }
+func (m *Message) String() string            { return proto.CompactTextString(m) }
+func (*Message) ProtoMessage()               {}
+func (*Message) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
+
+func init() {
+	proto.RegisterType((*HelloRequest)(nil), "example.foo_service.HelloRequest")
+	proto.RegisterType((*HelloResponse)(nil), "example.foo_service.HelloResponse")
+	proto.RegisterType((*CountToRequest)(nil), "example.foo_service.CountToRequest")
+	proto.RegisterType((*CountToResponse)(nil), "example.foo_service.CountToResponse")
+	proto.RegisterType((*MessageRequest)(nil), "example.foo_service.MessageRequest")
+	proto.RegisterType((*Message)(nil), "example.foo_service.Message")
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConn
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion3
 
 // Client API for FooService service
 
 type FooServiceClient interface {
 	SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error)
+	PostHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error)
+	PostMessage(ctx context.Context, in *MessageRequest, opts ...grpc.CallOption) (*Message, error)
 	CountTo(ctx context.Context, in *CountToRequest, opts ...grpc.CallOption) (*CountToResponse, error)
 }
 
@@ -88,6 +144,24 @@ func (c *fooServiceClient) SayHello(ctx context.Context, in *HelloRequest, opts 
 	return out, nil
 }
 
+func (c *fooServiceClient) PostHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error) {
+	out := new(HelloResponse)
+	err := grpc.Invoke(ctx, "/example.foo_service.FooService/PostHello", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *fooServiceClient) PostMessage(ctx context.Context, in *MessageRequest, opts ...grpc.CallOption) (*Message, error) {
+	out := new(Message)
+	err := grpc.Invoke(ctx, "/example.foo_service.FooService/PostMessage", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *fooServiceClient) CountTo(ctx context.Context, in *CountToRequest, opts ...grpc.CallOption) (*CountToResponse, error) {
 	out := new(CountToResponse)
 	err := grpc.Invoke(ctx, "/example.foo_service.FooService/CountTo", in, out, c.cc, opts...)
@@ -101,6 +175,8 @@ func (c *fooServiceClient) CountTo(ctx context.Context, in *CountToRequest, opts
 
 type FooServiceServer interface {
 	SayHello(context.Context, *HelloRequest) (*HelloResponse, error)
+	PostHello(context.Context, *HelloRequest) (*HelloResponse, error)
+	PostMessage(context.Context, *MessageRequest) (*Message, error)
 	CountTo(context.Context, *CountToRequest) (*CountToResponse, error)
 }
 
@@ -108,28 +184,76 @@ func RegisterFooServiceServer(s *grpc.Server, srv FooServiceServer) {
 	s.RegisterService(&_FooService_serviceDesc, srv)
 }
 
-func _FooService_SayHello_Handler(srv interface{}, ctx context.Context, codec grpc.Codec, buf []byte) (interface{}, error) {
+func _FooService_SayHello_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(HelloRequest)
-	if err := codec.Unmarshal(buf, in); err != nil {
+	if err := dec(in); err != nil {
 		return nil, err
 	}
-	out, err := srv.(FooServiceServer).SayHello(ctx, in)
-	if err != nil {
-		return nil, err
+	if interceptor == nil {
+		return srv.(FooServiceServer).SayHello(ctx, in)
 	}
-	return out, nil
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/example.foo_service.FooService/SayHello",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FooServiceServer).SayHello(ctx, req.(*HelloRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-func _FooService_CountTo_Handler(srv interface{}, ctx context.Context, codec grpc.Codec, buf []byte) (interface{}, error) {
+func _FooService_PostHello_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HelloRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FooServiceServer).PostHello(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/example.foo_service.FooService/PostHello",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FooServiceServer).PostHello(ctx, req.(*HelloRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FooService_PostMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MessageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FooServiceServer).PostMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/example.foo_service.FooService/PostMessage",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FooServiceServer).PostMessage(ctx, req.(*MessageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FooService_CountTo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CountToRequest)
-	if err := codec.Unmarshal(buf, in); err != nil {
+	if err := dec(in); err != nil {
 		return nil, err
 	}
-	out, err := srv.(FooServiceServer).CountTo(ctx, in)
-	if err != nil {
-		return nil, err
+	if interceptor == nil {
+		return srv.(FooServiceServer).CountTo(ctx, in)
 	}
-	return out, nil
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/example.foo_service.FooService/CountTo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FooServiceServer).CountTo(ctx, req.(*CountToRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 var _FooService_serviceDesc = grpc.ServiceDesc{
@@ -141,9 +265,48 @@ var _FooService_serviceDesc = grpc.ServiceDesc{
 			Handler:    _FooService_SayHello_Handler,
 		},
 		{
+			MethodName: "PostHello",
+			Handler:    _FooService_PostHello_Handler,
+		},
+		{
+			MethodName: "PostMessage",
+			Handler:    _FooService_PostMessage_Handler,
+		},
+		{
 			MethodName: "CountTo",
 			Handler:    _FooService_CountTo_Handler,
 		},
 	},
-	Streams: []grpc.StreamDesc{},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: fileDescriptor0,
+}
+
+func init() { proto.RegisterFile("simple-service.proto", fileDescriptor0) }
+
+var fileDescriptor0 = []byte{
+	// 380 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xac, 0x53, 0xc1, 0x4e, 0xea, 0x40,
+	0x14, 0x0d, 0x10, 0xa0, 0xdc, 0x3e, 0x78, 0x2f, 0x03, 0x79, 0x92, 0x06, 0x13, 0xac, 0x2e, 0x48,
+	0x0c, 0x6d, 0x82, 0x71, 0xc3, 0xc2, 0x05, 0x26, 0xc6, 0x8d, 0x09, 0x01, 0x57, 0x6e, 0xcc, 0x08,
+	0x63, 0x69, 0x52, 0x7a, 0x6b, 0x67, 0x10, 0x89, 0x71, 0xe3, 0x2f, 0xf8, 0x39, 0x7e, 0x86, 0xbf,
+	0xe0, 0x87, 0x68, 0x67, 0x06, 0x52, 0x13, 0x6c, 0x5c, 0xb8, 0x9b, 0x7b, 0xe6, 0x9c, 0x7b, 0x7a,
+	0xcf, 0xdc, 0x42, 0x83, 0xfb, 0xf3, 0x28, 0x60, 0x5d, 0xce, 0xe2, 0x7b, 0x7f, 0xc2, 0x9c, 0x28,
+	0x46, 0x81, 0xa4, 0xce, 0x1e, 0x68, 0x02, 0x3b, 0xb7, 0x88, 0xd7, 0xfa, 0xca, 0x6a, 0x79, 0x88,
+	0x5e, 0xc0, 0x5c, 0x1a, 0xf9, 0x2e, 0x0d, 0x43, 0x14, 0x54, 0xf8, 0x18, 0x72, 0x25, 0xb1, 0xdb,
+	0xf0, 0xe7, 0x9c, 0x05, 0x01, 0x8e, 0xd8, 0xdd, 0x82, 0x71, 0x41, 0xfe, 0x41, 0x61, 0x39, 0xc3,
+	0x66, 0xae, 0x9d, 0xeb, 0x54, 0x46, 0xc9, 0xd1, 0x3e, 0x84, 0xaa, 0x66, 0xf0, 0xe8, 0x53, 0xc7,
+	0x88, 0x05, 0x46, 0xac, 0xcf, 0x9a, 0xb7, 0xa9, 0xed, 0x0e, 0xd4, 0x4e, 0x71, 0x11, 0x8a, 0xcb,
+	0x4d, 0xc3, 0xff, 0x50, 0x12, 0x34, 0xf6, 0x98, 0x90, 0xdc, 0xe2, 0x48, 0x57, 0x76, 0x17, 0xfe,
+	0x6e, 0x98, 0x3f, 0x68, 0x3c, 0x84, 0xda, 0x05, 0xe3, 0x9c, 0x7a, 0x6c, 0xdd, 0xf8, 0x04, 0xcc,
+	0xb9, 0x42, 0x06, 0x38, 0x5d, 0x49, 0x81, 0xd9, 0x6b, 0x39, 0x5b, 0x22, 0x70, 0xd6, 0xca, 0xb4,
+	0xc0, 0x3e, 0x86, 0xb2, 0xc6, 0x49, 0x03, 0x8a, 0xb3, 0x64, 0x44, 0xed, 0xaa, 0x8a, 0x04, 0x5d,
+	0x62, 0x1c, 0x4c, 0x9b, 0x79, 0x85, 0xca, 0xa2, 0xf7, 0x5a, 0x00, 0x38, 0x43, 0x1c, 0xab, 0xd6,
+	0x84, 0x82, 0x31, 0xa6, 0x2b, 0x19, 0x10, 0xd9, 0xdb, 0x6a, 0x9e, 0x8e, 0xd7, 0xb2, 0xb3, 0x28,
+	0x7a, 0xd4, 0xda, 0xf3, 0xdb, 0xfb, 0x4b, 0xde, 0x20, 0x25, 0x57, 0x7d, 0x87, 0x07, 0x95, 0x21,
+	0x72, 0xf1, 0xab, 0x1e, 0x75, 0xe9, 0x51, 0xb5, 0xb4, 0x47, 0x3f, 0x79, 0x69, 0x82, 0x60, 0x26,
+	0x46, 0xeb, 0x54, 0xf6, 0x33, 0xb3, 0xd4, 0x66, 0x99, 0x81, 0xdb, 0xbb, 0xd2, 0x66, 0xc7, 0x32,
+	0x5c, 0x9d, 0x7c, 0x3f, 0xfd, 0x04, 0x24, 0x82, 0xb2, 0xde, 0x81, 0x6f, 0xcc, 0xbe, 0xee, 0x92,
+	0x75, 0x90, 0x4d, 0xd2, 0xb3, 0x59, 0xd2, 0xb4, 0x41, 0x88, 0x3b, 0x49, 0x6e, 0x5c, 0x81, 0xee,
+	0xa3, 0x5a, 0xba, 0xa7, 0x41, 0xf5, 0xca, 0x4c, 0x49, 0x6f, 0x4a, 0xf2, 0x27, 0x38, 0xfa, 0x08,
+	0x00, 0x00, 0xff, 0xff, 0xf9, 0x28, 0xc3, 0x29, 0x4f, 0x03, 0x00, 0x00,
 }
