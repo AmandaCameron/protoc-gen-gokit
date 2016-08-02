@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"io/ioutil"
+	"log"
 	"os"
 	"strings"
 
@@ -48,7 +49,9 @@ type method struct {
 	Input       message
 	PathArgs    []field
 	Path        string
-	Method      string
+	Method      string	
+	GoBodyName string
+	Body        string
 }
 
 type message struct {
@@ -170,6 +173,15 @@ func main() {
 						m.Path = http.Delete
 
 						m.Method = "DELETE"
+					}
+
+					if http.Body != "" {
+						if m.Method == "PUT" || m.Method == "POST" {
+							m.Body = http.Body
+							m.GoBodyName = goise(http.Body)
+						} else {
+							log.Printf("WARN: Got http.body on non-put, non-post method.")
+						}
 					}
 				}
 
