@@ -24,6 +24,8 @@ import (
 	. "{{ $pkg }}"{{ end }}
 )
 
+var _ = ioutil.ReadAll
+
 {{ range $svc := .Services }}
 
 // MakeMux_{{$svc.GoName}} creates a server mux for the {{ $svc.GoName }} service, 
