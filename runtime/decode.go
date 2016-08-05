@@ -19,7 +19,13 @@ func decode(target reflect.Value, inputValue string) error {
 
 	if target.Kind() == reflect.Ptr {
 		target.Set(reflect.New(targetType.Elem()))
+
 		return decode(target.Elem(), inputValue)
+	}
+
+	if targetType.Kind() == reflect.String {
+		target.Set(reflect.ValueOf(inputValue))
+		return nil
 	}
 
 	if targetType.Kind() == reflect.Struct {
