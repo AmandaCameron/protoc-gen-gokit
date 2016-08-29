@@ -38,6 +38,8 @@ func (mux *Mux) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 	invalidMethod := false
 
 	if req.Method == "OPTIONS" {
+		wr.Header().Set("Access-Control-Allow-Headers", "Authorization")
+		wr.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE")
 		wr.WriteHeader(200)
 
 		return
