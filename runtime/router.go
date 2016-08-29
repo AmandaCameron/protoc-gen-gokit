@@ -35,8 +35,13 @@ func (mux *Mux) AddEndpoint(method, pathSegments string, ep *kithttp.Server) {
 
 func (mux *Mux) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 	pathParts := strings.Split(req.URL.Path, "/")
-
 	invalidMethod := false
+
+	if req.Method == "OPTIONS" {
+		wr.WriteHeader(200)
+
+		return
+	}
 
 	for _, endp := range mux.endpoints {
 		if len(pathParts) == len(endp.pathSegments) && matchPath(endp.pathSegments, pathParts) {
@@ -53,7 +58,6 @@ func (mux *Mux) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 
 	if invalidMethod {
 		http.Error(wr, "Method not allowed", 405)
-
 		return
 	}
 
