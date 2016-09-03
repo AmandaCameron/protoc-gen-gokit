@@ -45,7 +45,7 @@ func MakeMux_{{ $svc.GoName }}(cli {{ $svc.GoName }}Client, mw endpoint.Middlewa
 
 {{ range $method := $svc.Methods }}
 // Decode_{{ $svc.GoName }}_{{ $method.GoName }} decodes an http.Request into a {{ $method.GoInputType }}.
-func Decode_{{ $svc.GoName }}_{{ $method.GoName }}(req *http.Request) (interface{}, error) {
+func Decode_{{ $svc.GoName }}_{{ $method.GoName }}(ctx context.Context, req *http.Request) (interface{}, error) {
 	var ret {{ $method.GoInputType }}
 
 	qry := req.URL.Query()
@@ -53,7 +53,7 @@ func Decode_{{ $svc.GoName }}_{{ $method.GoName }}(req *http.Request) (interface
 
 {{ if $method.Body }}
 	if buff, err := ioutil.ReadAll(req.Body); err == nil {
-		if err := runtime.Decode(&ret.{{ $method.GoBodyName }}, string(buff)); err != nil {
+		if err := runtime.Decode(ctx, &ret.{{ $method.GoBodyName }}, string(buff)); err != nil {
 			return nil, err
 		}
 	}
@@ -61,7 +61,7 @@ func Decode_{{ $svc.GoName }}_{{ $method.GoName }}(req *http.Request) (interface
 
 {{- range $i, $field := $method.Input.Fields }}
 	if val := qry.Get("{{ $field.ProtoName }}"); val != "" {
-		if err := runtime.Decode(&ret.{{ $field.GoName }}, val); err != nil {
+		if err := runtime.Decode(ctx, &ret.{{ $field.GoName }}, val); err != nil {
 			return nil, err
 		}
 	}
@@ -74,7 +74,7 @@ func Decode_{{ $svc.GoName }}_{{ $method.GoName }}(req *http.Request) (interface
 
 {{- range $i, $field := $method.PathArgs }}
 	{{- if len $field.GoName }}
-	if err := runtime.Decode(&ret.{{ $field.GoName}}, parts[{{ $i }}]); err != nil {
+	if err := runtime.Decode(ctx, &ret.{{ $field.GoName}}, parts[{{ $i }}]); err != nil {
 		return nil, err
 	}
 	{{- end }}

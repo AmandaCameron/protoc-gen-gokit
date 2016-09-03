@@ -5,22 +5,24 @@ import (
 	"fmt"
 	"reflect"
 
+	"golang.org/x/net/context"
+
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 )
 
 // Decode decodes the specified val into the specified target.
-func Decode(target interface{}, val string) error {
-	return decode(reflect.ValueOf(target).Elem(), val)
+func Decode(ctx context.Context, target interface{}, val string) error {
+	return decode(ctx, reflect.ValueOf(target).Elem(), val)
 }
 
-func decode(target reflect.Value, inputValue string) error {
+func decode(ctx context.Context, target reflect.Value, inputValue string) error {
 	targetType := target.Type()
 
 	if target.Kind() == reflect.Ptr {
 		target.Set(reflect.New(targetType.Elem()))
 
-		return decode(target.Elem(), inputValue)
+		return decode(ctx, target.Elem(), inputValue)
 	}
 
 	if targetType.Kind() == reflect.String {

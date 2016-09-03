@@ -17,6 +17,8 @@ import (
 
 )
 
+var _ = ioutil.ReadAll
+
 
 
 // MakeMux_FooService creates a server mux for the FooService service, 
@@ -51,13 +53,15 @@ func MakeMux_FooService(cli FooServiceClient, mw endpoint.Middleware, responseEn
 
 
 // Decode_FooService_SayHello decodes an http.Request into a HelloRequest.
-func Decode_FooService_SayHello(req *http.Request) (interface{}, error) {
+func Decode_FooService_SayHello(ctx context.Context, req *http.Request) (interface{}, error) {
 	var ret HelloRequest
 
 	qry := req.URL.Query()
 	_ = qry
+
+
 	if val := qry.Get("who"); val != "" {
-		if err := runtime.Decode(&ret.Who, val); err != nil {
+		if err := runtime.Decode(ctx, &ret.Who, val); err != nil {
 			return nil, err
 		}
 	}
@@ -81,18 +85,20 @@ func MakeEndpoint_FooService_SayHello(cli FooServiceClient) endpoint.Endpoint {
 }
 
 // Decode_FooService_PostHello decodes an http.Request into a HelloRequest.
-func Decode_FooService_PostHello(req *http.Request) (interface{}, error) {
+func Decode_FooService_PostHello(ctx context.Context, req *http.Request) (interface{}, error) {
 	var ret HelloRequest
 
 	qry := req.URL.Query()
 	_ = qry
+
+
 	if buff, err := ioutil.ReadAll(req.Body); err == nil {
-		if err := runtime.Decode(&ret.Who, string(buff)); err != nil {
+		if err := runtime.Decode(ctx, &ret.Who, string(buff)); err != nil {
 			return nil, err
 		}
 	}
 	if val := qry.Get("who"); val != "" {
-		if err := runtime.Decode(&ret.Who, val); err != nil {
+		if err := runtime.Decode(ctx, &ret.Who, val); err != nil {
 			return nil, err
 		}
 	}
@@ -116,18 +122,20 @@ func MakeEndpoint_FooService_PostHello(cli FooServiceClient) endpoint.Endpoint {
 }
 
 // Decode_FooService_PostMessage decodes an http.Request into a MessageRequest.
-func Decode_FooService_PostMessage(req *http.Request) (interface{}, error) {
+func Decode_FooService_PostMessage(ctx context.Context, req *http.Request) (interface{}, error) {
 	var ret MessageRequest
 
 	qry := req.URL.Query()
 	_ = qry
+
+
 	if buff, err := ioutil.ReadAll(req.Body); err == nil {
-		if err := runtime.Decode(&ret.MessageBody, string(buff)); err != nil {
+		if err := runtime.Decode(ctx, &ret.MessageBody, string(buff)); err != nil {
 			return nil, err
 		}
 	}
 	if val := qry.Get("messageBody"); val != "" {
-		if err := runtime.Decode(&ret.MessageBody, val); err != nil {
+		if err := runtime.Decode(ctx, &ret.MessageBody, val); err != nil {
 			return nil, err
 		}
 	}
@@ -151,13 +159,15 @@ func MakeEndpoint_FooService_PostMessage(cli FooServiceClient) endpoint.Endpoint
 }
 
 // Decode_FooService_CountTo decodes an http.Request into a CountToRequest.
-func Decode_FooService_CountTo(req *http.Request) (interface{}, error) {
+func Decode_FooService_CountTo(ctx context.Context, req *http.Request) (interface{}, error) {
 	var ret CountToRequest
 
 	qry := req.URL.Query()
 	_ = qry
+
+
 	if val := qry.Get("target"); val != "" {
-		if err := runtime.Decode(&ret.Target, val); err != nil {
+		if err := runtime.Decode(ctx, &ret.Target, val); err != nil {
 			return nil, err
 		}
 	}
@@ -166,7 +176,7 @@ func Decode_FooService_CountTo(req *http.Request) (interface{}, error) {
 	if len(parts) < 4 {
 		return nil, errors.New("Missing Parameters.")
 	}
-	if err := runtime.Decode(&ret.Target, parts[3]); err != nil {
+	if err := runtime.Decode(ctx, &ret.Target, parts[3]); err != nil {
 		return nil, err
 	}
 

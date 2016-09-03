@@ -15,7 +15,7 @@ import (
 	foo "github.com/AmandaCameron/protoc-gen-gokit/examples/foo-service"
 )
 
-func jsonEncoder(wr http.ResponseWriter, data interface{}) error {
+func jsonEncoder(ctx context.Context, wr http.ResponseWriter, data interface{}) error {
 	return json.NewEncoder(wr).Encode(data)
 }
 

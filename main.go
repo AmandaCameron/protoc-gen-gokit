@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -49,8 +50,8 @@ type method struct {
 	Input       message
 	PathArgs    []field
 	Path        string
-	Method      string	
-	GoBodyName string
+	Method      string
+	GoBodyName  string
 	Body        string
 }
 
@@ -211,7 +212,12 @@ func main() {
 			}
 
 			for k := range impUsages {
-				imps[k] = imports[k]
+				if v, ok := imports[k]; ok {
+					imps[k] = v
+					continue
+				}
+
+				fmt.Fprintf(os.Stderr, "Import %q is unknown.", k)
 			}
 
 			fileTemplate.Execute(buff, struct {
